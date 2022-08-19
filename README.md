@@ -1,5 +1,5 @@
 # Solidity-Applications
-Learning By Coding
+Growing With Coding
 
 ## 30DaysOfSolidity
 
