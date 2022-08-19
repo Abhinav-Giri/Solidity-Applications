@@ -1,0 +1,29 @@
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.9;
+
+contract ether_wallet{
+
+ address  payable public owner ;
+
+constructor() {
+    owner = payable(msg.sender);
+}
+ // For receiving ether
+ receive () external payable{}
+
+
+ function withdraw(uint _amount) external {
+     require(msg.sender == owner , "not a owner");
+
+     // payable(msg.sender).transfer(_amount);
+
+     (bool sent,) = msg.sender.call{value : _amount} (" ");
+     require (sent,"Transaction Failed");
+ }
+ // To show the  balance of contract
+  function balance0f() external view returns(uint) {
+      return address(this).balance ;
+
+  }
+ }
+
