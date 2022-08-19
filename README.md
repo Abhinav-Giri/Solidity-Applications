@@ -1,3 +1,6 @@
 # Solidity-Applications
-A Smart Contract  in which:
-Anyone can send Ether and only Owner can withdraw
+Learning By Coding
+
+## 30DaysOfSolidity
+
+## Day1: [Ether_Wallet](https://github.com/Abhinav-Giri/Solidity-Applications/blob/main/Ether_Wallet)
