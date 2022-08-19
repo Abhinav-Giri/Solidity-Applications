@@ -15,7 +15,7 @@ constructor() {
  function withdraw(uint _amount) external {
      require(msg.sender == owner , "not a owner");
 
-     // payable(msg.sender).transfer(_amount);
+     // can also write- payable(msg.sender).transfer(_amount);
 
      (bool sent,) = msg.sender.call{value : _amount} (" ");
      require (sent,"Transaction Failed");
