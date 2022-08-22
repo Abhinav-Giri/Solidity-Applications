@@ -12,13 +12,17 @@ contract MerkleTree_Proof {
         bytes32 leaf,
         //Sequential flow
         uint index
+        
     ) public pure returns (bool) {
         bytes32 hash = leaf;
 
         for (uint i = 0; i < proof.length; i++) {
-
+        
+            // for generating hash at even place
             if (index % 2 == 0) {
                 hash = keccak256(abi.encodePacked(hash, proofElement[i]));
+                
+            // for generating hash at odd place
             } else {
                 hash = keccak256(abi.encodePacked(proofElement[i], hash));
             }
@@ -65,7 +69,7 @@ contract TestMerkleTreeProof is MerkleProof {
         return hashes[hashes.length - 1];
     }
 
-    /* example of verifycatin
+    /* example of verifycation
     3rd leaf
     0xdca3326ad7e8121bf9cf9c12333e6b2271abe823ec9edfe42f813b1e768fa57b
 
