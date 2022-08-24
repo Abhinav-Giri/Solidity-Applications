@@ -158,7 +158,7 @@ contract MultiSig_Wallet {
     function getTransactionCount() public view returns (uint) {
         return transactions.length;
     }
-
+    // get transaction details
     function getTransaction(uint _txIndex)
         public
         view
