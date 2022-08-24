@@ -1,0 +1,95 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+library Iterable_Mapping {
+    // Iterable mapping from address to uint;
+    struct Map {
+        // address is an array which is pointing to values, index number and inserted
+        address[] keys;
+        mapping(address => uint) values;
+        mapping(address => uint) indexOf;
+        mapping(address => bool) inserted;
+    }
+    // get value from Map
+    function get(Map storage map, address key) public view returns (uint) {
+        return map.values[key];
+    }
+    // get index from Map
+    function getKeyAtIndex(Map storage map, uint index) public view returns (address) {
+        return map.keys[index];
+    }
+    //get length of Map
+    function size(Map storage map) public view returns (uint) {
+        return map.keys.length;
+    }
+    // set value in map
+    function set(
+        Map storage map,
+        address key,
+        uint val
+    ) public {
+        if (map.inserted[key]) {
+        //update value
+            map.values[key] = val;
+        } else {
+        //insert new value
+            map.inserted[key] = true;
+            map.values[key] = val;
+            map.indexOf[key] = map.keys.length;
+            map.keys.push(key);
+        }
+    }
+    //remove function
+    function remove(Map storage map, address key) public {
+        if (!map.inserted[key]) {
+            return;
+        }
+        //delete inserted and value from Map
+        delete map.inserted[key];
+        delete map.values[key];
+        
+        //shift last index and address key to index whose vaue and inserted are deleted
+        uint index = map.indexOf[key];
+        uint lastIndex = map.keys.length - 1;
+        address lastKey = map.keys[lastIndex];
+
+        map.indexOf[lastKey] = index;
+        delete map.indexOf[key];
+
+        map.keys[index] = lastKey;
+        //delete lastly key
+        map.keys.pop();
+    }
+}
+//We can test by putting values
+contract TestIterableMap {
+    using IterableMapping for IterableMapping.Map;
+
+    IterableMapping.Map private map;
+
+    function testIterableMap() public {
+        map.set(address(0), 0);
+        map.set(address(1), 100);
+        map.set(address(2), 200); // insert
+        map.set(address(2), 200); // update
+        map.set(address(3), 300);
+
+        for (uint i = 0; i < map.size(); i++) {
+            address key = map.getKeyAtIndex(i);
+            
+            // assert :-for checking condition, it false it will stop code run and use all the remaining gas
+            // used in case for internal errors 
+            assert(map.get(key) == i * 100);
+        }
+        //now for checking ,lets remove address(1) and see
+        map.remove(address(1));
+
+        // keys = [address(0), address(3), address(2)]
+        // size now will reduce to 3
+        assert(map.size() == 3);
+        assert(map.getKeyAtIndex(0) == address(0));
+        //check for true and false by put values
+        assert(map.getKeyAtIndex(1) == address(3));
+        assert(map.getKeyAtIndex(2) == address(2));
+    }
+}
