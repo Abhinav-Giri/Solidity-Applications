@@ -48,12 +48,14 @@ library Iterable_Mapping {
         delete map.inserted[key];
         delete map.values[key];
         
-        //shift last index and address key to index whose vaue and inserted are deleted
+        //shift last index and address key to index (whose value and inserted are deleted)
+        //shift lastindex element to the position of removed mappings
         uint index = map.indexOf[key];
         uint lastIndex = map.keys.length - 1;
         address lastKey = map.keys[lastIndex];
 
         map.indexOf[lastKey] = index;
+        map.indexOf[key] = lastIndex;
         delete map.indexOf[key];
 
         map.keys[index] = lastKey;
