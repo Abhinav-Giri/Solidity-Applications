@@ -97,6 +97,7 @@ contract NftEnglishAuction {
             //Transfering eth to seller
             seller.transfer(highestBid);
         } else {
+            //due to any reason,if nobody did bid
             nft.safeTransferFrom(address(this), seller, nftId);
         }
 
