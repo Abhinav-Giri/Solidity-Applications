@@ -65,7 +65,8 @@ contract NftEnglishAuction {
         require(started, "not started");
         require(block.timestamp < endAt, "ended");
         require(msg.value > highestBid, "value < highest");
-
+        
+        // allowing to store old highest bids, before updating new highest bid
         if (highestBidder != address(0)) {
             bids[highestBidder] += highestBid;
         }
