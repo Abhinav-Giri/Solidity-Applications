@@ -1,0 +1,104 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+interface IERC721 {
+    //Safely transfers a specific NFT ( tokenId ) from one account ( from ) to another ( to )
+    function safeTransferFrom(
+        address from,
+        address to,
+        uint tokenId
+    ) external;
+    
+    //used as sender, receiver, NFT_ID
+    function transferFrom(
+        address,
+        address,
+        uint
+    ) external;
+}
+
+contract NftEnglishAuction {
+    //events used in contracts 
+    event StartBid();
+    event Bid(address indexed sender, uint amount);
+    event WithdrawAmount(address indexed bidder, uint amount);
+    event EndBid(address winner, uint amount);
+    
+    //state variable declaration
+    uint public nftId;
+    address payable public seller;
+    uint public endAt;
+    bool public started;
+    bool public ended;
+
+    address public highestBidder;
+    uint public highestBid;
+    //Defining the NFT that we're auctioning
+    IERC721 public nft; 
+    mapping(address => uint) public bids;
+
+    constructor(
+        address _nft,
+        uint _nftId,
+        //set starting bid value
+        uint _startingBid
+    ) {
+        nft = IERC721(_nft);
+        nftId = _nftId;
+
+        seller = payable(msg.sender);
+        highestBid = _startingBid;
+    }
+
+    function start() external {
+        require(!started, "started");
+        require(msg.sender == seller, "not seller");
+
+        nft.transferFrom(msg.sender, address(this), nftId);
+        started = true;
+        endAt = block.timestamp + 7 days;
+
+        emit StartBid();
+    }
+
+    function bid() external payable {
+        require(started, "not started");
+        require(block.timestamp < endAt, "ended");
+        require(msg.value > highestBid, "value < highest");
+
+        if (highestBidder != address(0)) {
+            bids[highestBidder] += highestBid;
+        }
+
+        highestBidder = msg.sender;
+        highestBid = msg.value;
+
+        emit Bid(msg.sender, msg.value);
+    }
+
+    function withdraw() external {
+        uint bal = bids[msg.sender];
+        bids[msg.sender] = 0;
+        payable(msg.sender).transfer(bal);
+
+        emit WithdrawAmount(msg.sender, bal);
+    }
+
+    function end() external {
+        require(started, "not started");
+        require(block.timestamp >= endAt, "not ended");
+        require(!ended, "ended");
+
+        ended = true;
+        if (highestBidder != address(0)) {
+            //Transfering the ownership of NFT to the winner
+            nft.safeTransferFrom(address(this), highestBidder, nftId);
+            //Transfering eth to seller
+            seller.transfer(highestBid);
+        } else {
+            nft.safeTransferFrom(address(this), seller, nftId);
+        }
+
+        emit EndBid(highestBidder, highestBid);
+    }
+}
