@@ -1,0 +1,76 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+interface IERC721 {
+    function transferFrom(
+        address from,
+        address to,
+        uint nftId
+    ) external;
+}
+
+contract NFT_DutchAuction {
+    // constant will have their values assigned at compile time and will not allow for any modifications at runtime.
+    uint private constant TIMEPERIOD = 7 days;
+    
+    //Immutable variables can be assigned an arbitrary value in the constructor of the contract or at the point of their declaration
+    //They cannot be read during construction time and can only be assigned once.
+    IERC721 public immutable nft;
+    uint public immutable nftId;
+
+    address payable public immutable seller;
+    uint public  startingBidPrice;
+    uint public  startAt;
+    uint public  endAt;
+    uint public  discountRate;
+
+    constructor(
+        uint _startingBidPrice,
+        uint _discountRate,
+        address _nft,
+        uint _nftId
+    ) {
+        seller = payable(msg.sender);
+        startingBidPrice = _startingBidPrice;
+        startAt = block.timestamp;
+        endAt = block.timestamp + TIMEPERIOD;
+        discountRate = _discountRate;
+
+        require(_startingBidPrice >= _discountRate * TIMEPERIOD, "starting price < min");
+
+        nft = IERC721(_nft);
+        nftId = _nftId;
+    }
+
+    function getBidPrice() public view returns (uint) {
+        //geting the time period at which bidder wants to see price
+        uint timeElapsed = block.timestamp - startAt;
+        //to calculate with time what the discout rate comes at 
+        uint discount = discountRate * timeElapsed;
+        //current price
+        uint currentPrice = startingBidPrice - discount;
+        return currentPrice;
+    }
+
+    function buynft() external payable {
+        //check whether bidding is in process
+        require(block.timestamp < endAt, "auction expired");
+
+        uint price = getBidPrice();
+        require(msg.value >= price, "ETH < price");
+        
+        //transfering ownership of nft to bidder
+        nft.transferFrom(seller, msg.sender, nftId);
+        uint refund = msg.value - price;
+        // returning amount if bidder did more payment than current bid price
+        if (refund > 0) {
+            payable(msg.sender).transfer(refund);
+        }
+        // the payment will get send to seller and contract will destruct itself
+        selfdestruct(seller);
+    }
+}
+//Deployment :- first deploy IERC721 and mint token with specified tokenID and address of which it is deployed from.
+              //Then, entering same address and tokenID deploy NFT_DutchAuction
+              //Then get approval of deployed address of NFT_DutchAuction by IERC721.
+              //Now,can check for all functionalities of NFT_DutchAuction
