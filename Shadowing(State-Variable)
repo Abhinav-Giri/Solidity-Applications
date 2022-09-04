@@ -1,19 +1,21 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.13;
 
-contract S {
-    string public name = "Contract S";
+contract Parent {
+    string public name = "Contract Parent";
 
     function getName() public view returns (string memory) {
         return name;
     }
 }
 
-contract H is S {
+contract Child is Parent {
     // This is correct way to override inherited state variables.
     constructor() {
-        name = "Contract H";
+        name = "Contract Child";
     }
 
-    // C.getName returns "Contract H"
+    // C.getName returns "Contract Child"
 }
+
+//Note: Before the constructor code is executed, state variables are initialised to their specified value if you initialise them inline, or zero if you do not.
