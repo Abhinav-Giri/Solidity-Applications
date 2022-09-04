@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.13;
+
+contract S {
+    string public name = "Contract S";
+
+    function getName() public view returns (string memory) {
+        return name;
+    }
+}
+
+contract H is S {
+    // This is correct way to override inherited state variables.
+    constructor() {
+        name = "Contract H";
+    }
+
+    // C.getName returns "Contract H"
+}
