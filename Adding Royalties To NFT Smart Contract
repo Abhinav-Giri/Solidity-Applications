@@ -1,0 +1,70 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.15;
+
+import "@openzeppelin/contracts@4.7.3/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.7.3/token/ERC721/extensions/ERC721Enumerable.sol";
+import "@openzeppelin/contracts@4.7.3/access/Ownable.sol";
+
+contract NewToken is ERC721, ERC721Enumerable, Ownable {
+    address royaltyReceiver;
+    uint96 royaltyFeesInBips;
+    string public contractURI;
+    constructor(uint96 _royaltyFeesInBips,string memory _contractURI) ERC721("NewToken", "NTK") {
+        royaltyFeesInBips = _royaltyFeesInBips;
+        contractURI = _contractURI ;
+        royaltyReceiver = msg.sender;
+
+    }
+
+    function safeMint(address to, uint256 tokenId) public onlyOwner {
+        _safeMint(to, tokenId);
+    }
+
+    // The following functions are overrides required by Solidity.
+
+    function _beforeTokenTransfer(address from, address to, uint256 tokenId)
+        internal
+        override(ERC721, ERC721Enumerable)
+    {
+        super._beforeTokenTransfer(from, to, tokenId);
+    }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        override(ERC721, ERC721Enumerable)
+        returns (bool)
+    {   //as mentioned in "https://eips.ethereum.org/EIPS/eip-2981" - interface of ERC165
+        //interface ID and it should include all interface of parent so, included with Or condition
+        return interfaceId == 0x2a55205a || super.supportsInterface(interfaceId);
+    }
+
+    function royaltyInfo(
+        uint256 _tokenId,
+        uint256 _salePrice
+    ) external view returns (
+        address receiver,
+        uint256 royaltyAmount
+    ){
+        return(royaltyReceiver, royaltyCalculator( _salePrice));
+
+    }
+    function royaltyCalculator(uint _salePrice) view public returns(uint) {
+        //divided by 10000 because it is equal to 100% BIP
+        return (_salePrice/10000) * royaltyFeesInBips ;
+    }
+
+    function setRoyaltyInfo(address _royaltyReceiver, uint96 _royaltyFeesInBips) public onlyOwner{
+        royaltyReceiver = _royaltyReceiver ;
+        royaltyFeesInBips = _royaltyFeesInBips ;
+
+    }
+
+    function setContractURI(string calldata _ContractURI) public onlyOwner {
+        contractURI = _ContractURI ;
+    }
+} 
+
+//We can add Royalty Smart Contract but it is in hand of Marketplace to honour the royalties
+// Can also use Openzippelin "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/common/ERC2981.sol";
+//In opensea,can go to NFT and in edit option there is add fee option is there 
