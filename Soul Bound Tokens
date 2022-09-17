@@ -1,0 +1,64 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+import "@openzeppelin/contracts@4.7.3/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.7.3/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts@4.7.3/access/Ownable.sol";
+
+contract MyToken is ERC721, ERC721URIStorage, Ownable {
+
+    event Attest(address indexed to, uint256 indexed tokenId);
+    event Revoke(address indexed to, uint256 indexed tokenId);
+    constructor() ERC721("SoulBoundToken", "SBL") {}
+
+    function safeMint(address to, uint256 tokenId, string memory uri)
+        public
+        onlyOwner
+    {
+        _safeMint(to, tokenId);
+        _setTokenURI(tokenId, uri);
+    }
+     // Checking that it is either minted to or burned only and not to be transffered to any account
+     function _beforeTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    )  internal virtual override  {
+        require(from == address(0) || to == address(0), "Can't tansfer Token");
+    }
+    //checking for events, after the transfer is done
+    function _afterTokenTransfer(
+        address from,
+        address to,
+        uint256 tokenId
+    ) internal virtual override{
+        if(from == address(0)) {
+            emit Attest(to, tokenId);
+        }
+        if(to == address(0)) {
+            emit Revoke(to,tokenId);
+        }
+    }
+
+    //Option to revoke token for owner only
+    function revoke(uint256 tokenId) external onlyOwner {
+        _burn(tokenId);
+    }
+
+
+
+    // The following functions are overrides required by Solidity.
+
+    function _burn(uint256 tokenId) internal override(ERC721, ERC721URIStorage) {
+        super._burn(tokenId);
+    }
+
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        override(ERC721, ERC721URIStorage)
+        returns (string memory)
+    {
+        return super.tokenURI(tokenId);
+    }
+}
