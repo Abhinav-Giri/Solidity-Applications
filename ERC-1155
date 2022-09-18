@@ -1,0 +1,40 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.4;
+
+import "@openzeppelin/contracts@4.7.3/token/ERC1155/ERC1155.sol";
+import "@openzeppelin/contracts@4.7.3/access/Ownable.sol";
+
+contract MyToken is ERC1155, Ownable {
+    
+    //setting supplies for each token
+    uint256[] supplies = [100,150,200];
+    //setting for minted tokens
+    uint256[] minted = [0,0,0];
+    uint256[] rate = [.1 ether, .2 ether, .3 ether];
+    constructor()
+        ERC1155("IPFS://bafybeif4kikpmojvh2oswa3w6hqe2tc2kg2xh2fpkjzmu3a6d2q76djfxq/")
+    {}
+
+    function setURI(string memory newuri) public onlyOwner {
+        _setURI(newuri);
+    }
+
+    function mint(uint256 id, uint256 amount)
+        payable public
+        
+    { require(id <= supplies.length, "Not valid token");
+    require(id > 0, "Not valid token");
+    uint256 index = id -1;
+    require(minted[index] + amount <= supplies[index], "Not enough tokens");
+    require(msg.value >= rate[index] * amount, "Entered amount is less than cost" );
+    minted[index] += amount;
+    _mint(msg.sender, id, amount, '');
+    }
+
+    function withdraw()  public onlyOwner{
+        require(address(this).balance > 0, "Not enough balance");
+        payable(msg.sender).transfer(address(this).balance);
+    }
+
+    
+}
