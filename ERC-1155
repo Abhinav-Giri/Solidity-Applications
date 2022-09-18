@@ -24,6 +24,7 @@ contract MyToken is ERC1155, Ownable {
         
     { require(id <= supplies.length, "Not valid token");
     require(id > 0, "Not valid token");
+    //As token id starts with 1 and index with 0, so setting it
     uint256 index = id -1;
     require(minted[index] + amount <= supplies[index], "Not enough tokens");
     require(msg.value >= rate[index] * amount, "Entered amount is less than cost" );
