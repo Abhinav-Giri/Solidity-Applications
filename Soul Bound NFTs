@@ -18,6 +18,7 @@ contract MyToken is ERC721, ERC721URIStorage, Ownable {
         _safeMint(to, tokenId);
         _setTokenURI(tokenId, uri);
     }
+    
      // Checking that it is either minted to or burned only and not to be transffered to any account
      function _beforeTokenTransfer(
         address from,
