@@ -1,0 +1,42 @@
+//SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+ interface IERC20 {
+        function transferFrom(address sender, address receipient, uint256 amount) external returns (bool success);
+        function balanceOf(address account) external view returns (uint256);
+        function allowance(address owner, address spender) external view returns (uint256);
+    }
+ interface IERC721 {
+     function safeTransferFrom(address _from, address _to, uint256 _tokenId) external;
+ }
+
+ interface IERC1155 {
+     function safeTransferFrom(address _from, address _to, uint256 _id, uint256 _value, bytes calldata _data) external;
+ }
+
+contract Airdrops{
+ function bulkTransferIERC20(IERC20 _token, address[] calldata receipient, uint256[] calldata amount) public{
+     require(receipient.length ==  amount.length, "mismatch");
+     for(uint i=0; i< amount.length; i++)
+     {
+      _token.transferFrom(msg.sender, receipient[i], amount[i]);
+     }
+ }
+
+ function bulkTransferIERC721(IERC721 _token, address[] calldata _to, uint256[] calldata _tokenId) public{
+     require(_to.length == _tokenId.length, "mismatch");
+     for(uint i=0; i< _to.length; i++){
+         _token.safeTransferFrom(msg.sender, _to[i], _tokenId[i]);
+
+     }
+ }
+ function bulkTransferIERC1155(IERC1155 _token, address[] calldata _to, uint256[] calldata _id, uint256[] calldata _value) public{
+     require(_to.length == _id.length, "mismatch");
+     for(uint i=0; i< _to.length; i++){
+         _token.safeTransferFrom(msg.sender, _to[i], _id[i],_value[i],"");
+
+     }
+ }
+ }
+
+// require approval of owner o Airdrop Contract, then can Airdrop To address and desired NFTs 
