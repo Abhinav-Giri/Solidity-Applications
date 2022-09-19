@@ -15,6 +15,7 @@ pragma solidity ^0.8.17;
  }
 
 contract Airdrops{
+//Airdrop using IERC20
  function bulkTransferIERC20(IERC20 _token, address[] calldata receipient, uint256[] calldata amount) public{
      require(receipient.length ==  amount.length, "mismatch");
      for(uint i=0; i< amount.length; i++)
@@ -22,7 +23,7 @@ contract Airdrops{
       _token.transferFrom(msg.sender, receipient[i], amount[i]);
      }
  }
-
+//Airdrop using IERC721
  function bulkTransferIERC721(IERC721 _token, address[] calldata _to, uint256[] calldata _tokenId) public{
      require(_to.length == _tokenId.length, "mismatch");
      for(uint i=0; i< _to.length; i++){
@@ -30,6 +31,7 @@ contract Airdrops{
 
      }
  }
+ //Airdrop using IERC1155
  function bulkTransferIERC1155(IERC1155 _token, address[] calldata _to, uint256[] calldata _id, uint256[] calldata _value) public{
      require(_to.length == _id.length, "mismatch");
      for(uint i=0; i< _to.length; i++){
