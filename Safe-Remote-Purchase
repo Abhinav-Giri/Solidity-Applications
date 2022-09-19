@@ -33,7 +33,7 @@ contract PurchaseAgreement {
       //t0 make it priority in while executing
       _;
     }
-     
+    
      modifier onlyBuyer() {
          if (msg.sender != buyer) {
          revert OnlyBuyer();
