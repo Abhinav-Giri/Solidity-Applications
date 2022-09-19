@@ -33,3 +33,4 @@ contract Vending_Machine {
         donutBalances[msg.sender] += amount;
     }
 }
+
