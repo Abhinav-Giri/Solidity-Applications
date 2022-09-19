@@ -34,6 +34,7 @@ contract MerkleTree_Proof {
     }
 }
 
+
 contract TestMerkleTreeProof is MerkleProof {
     bytes32[] public hashes;
 
