@@ -32,6 +32,7 @@ contract MultiSig_Wallet {
     mapping(uint => mapping(address => bool)) public isConfirmed;
 
     Transaction[] public transactions;
+    
     // Modifier used to put  restrictions on execution of function
     modifier onlyOwner() {
         require(isOwner[msg.sender], "not owner");
