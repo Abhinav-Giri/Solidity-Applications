@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.17;
+
+import "@openzeppelin/contracts@4.7.3/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts@4.7.3/access/Ownable.sol";
+
+contract MyToken is ERC721, Ownable {
+    uint public totalSupply;
+    constructor() ERC721("MyNFT", "MN") {}
+
+    function safeMint(address to) public {
+        totalSupply++ ;
+        _safeMint(to, totalSupply);
+    }
+}
+
+
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/utils/ERC721Holder.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
+
+contract MyToken is ERC20, ERC721Holder , Ownable {
+    IERC721 public nft;
+    mapping(uint => address ) public userInfo;
+    mapping(uint => uint) public stakedAt;
+    uint public Reward = (50 * 10 ** decimals()) / 1 days ;
+    constructor(address _nft) ERC20("MyToken", "MKT") {
+     nft = IERC721(_nft);}
+    
+    function stake(uint _tokenId) external{
+     nft.safeTransferFrom(msg.sender, address(this), _tokenId);
+     userInfo[_tokenId] = msg.sender;
+     stakedAt[_tokenId] = block.timestamp;
+    }
+
+    function calculate(uint _tokenId) public  view returns(uint){
+     uint timeElapsed = block.timestamp - stakedAt[_tokenId];
+     return timeElapsed * Reward ;
+    }
+
+    function unStake(uint _tokenId) external{
+        require(userInfo[_tokenId] == msg.sender, "Not Authorized To Unstake");
+        _mint(msg.sender, calculate(_tokenId)) ;
+        nft.safeTransferFrom(address(this), msg.sender, _tokenId);
+        delete userInfo[_tokenId];
+        delete stakedAt[_tokenId];
+    }
+}
